@@ -17,7 +17,7 @@ This is the backend server for the Todo application. It provides a RESTful API f
 2. Create a `.env` file in the root directory with the following variables:
    ```
    PORT=5000
-   MONGODB_URI=mongodb://khizarjamshaidiqbal:svcpRYdquS1Jxr3r@34.72.160.101:27017/admin
+   MONGODB_URI=mongodb://DatabseUserName:DatabasePassword@DatabaseIP/admin
    ```
    
    Note: The MongoDB URI above is provided as an example. You may need to adjust it if your connection details change.
@@ -31,6 +31,65 @@ This is the backend server for the Todo application. It provides a RESTful API f
    ```
    npm start
    ```
+
+## MongoDB on Google Cloud Platform (GCP)
+
+This project can be deployed with MongoDB running on Google Cloud Platform. Here's how to set it up:
+
+### Creating a MongoDB VM on GCP
+
+1. Go to Google Cloud Console and navigate to Compute Engine
+2. Click "Create Instance" and select a suitable machine type (e.g., e2-small)
+3. Select Ubuntu as the operating system (20.04 LTS or newer)
+4. Allow HTTP/HTTPS traffic in the firewall settings
+5. Create and launch the VM
+
+### Installing MongoDB on GCP VM
+
+1. SSH into your VM from GCP Console
+2. Update package lists and install MongoDB:
+   ```
+   sudo apt update
+   sudo apt install -y mongodb
+   ```
+3. Enable and start MongoDB service:
+   ```
+   sudo systemctl enable mongodb
+   sudo systemctl start mongodb
+   ```
+4. Configure MongoDB for remote access by editing `/etc/mongodb.conf`:
+   ```
+   sudo nano /etc/mongodb.conf
+   ```
+   - Change `bind_ip` from 127.0.0.1 to 0.0.0.0
+   - Save and restart: `sudo systemctl restart mongodb`
+
+### Securing MongoDB on GCP
+
+1. Create an admin user:
+   ```
+   mongosh
+   use admin
+   db.createUser({
+     user: "adminUser",
+     pwd: "securePassword",
+     roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
+   })
+   ```
+
+2. Enable authentication in `/etc/mongodb.conf`:
+   ```
+   auth = true
+   ```
+
+3. Configure GCP firewall to only allow specific IP addresses to access MongoDB port (27017)
+
+### Connecting to GCP MongoDB
+
+Update your `.env` file with the GCP VM's external IP address:
+```
+MONGODB_URI=mongodb://username:password@YOUR_GCP_VM_IP:27017/your_db_name?authSource=admin
+```
 
 ## API Endpoints
 
