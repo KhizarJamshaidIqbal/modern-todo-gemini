@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+
+# MongoDB connection string
+MONGODB_URI
+
+# Server environment variables
+server/.env
+
+# Client environment variables
+client/.env 
+
+
+
+
+
+

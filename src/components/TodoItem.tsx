@@ -1,14 +1,34 @@
-
 import React from 'react';
-import { Todo, useTodos } from '../contexts/TodoContext';
-import { Trash, CheckCircle, Circle } from 'lucide-react';
+import { Todo, updateTodo, deleteTodo } from '../store/slices/todoSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { Trash, CheckCircle, Circle, CloudOff, Clock } from 'lucide-react';
 
 interface TodoItemProps {
   todo: Todo;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
-  const { toggleComplete, deleteTodo } = useTodos();
+  const dispatch = useAppDispatch();
+  const isOffline = useAppSelector(state => state.todos.isOffline);
+
+  const handleToggleComplete = async () => {
+    try {
+      await dispatch(updateTodo({ 
+        id: todo._id, 
+        updates: { completed: !todo.completed } 
+      })).unwrap();
+    } catch (error) {
+      console.error('Error toggling todo:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await dispatch(deleteTodo(todo._id)).unwrap();
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
 
   const priorityColors = {
     low: 'bg-blue-100 text-blue-800',
@@ -16,11 +36,16 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
     high: 'bg-red-100 text-red-800',
   };
 
+  // Check if this todo is local-only (not yet synced with server)
+  const isLocalOnly = todo.isLocal || todo._id.startsWith('local_');
+
   return (
-    <div className={`flex items-center justify-between p-4 mb-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow ${todo.completed ? 'opacity-70' : ''}`}>
+    <div className={`flex items-center justify-between p-4 mb-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow ${
+      todo.completed ? 'opacity-70' : ''
+    } ${isLocalOnly ? 'border-l-4 border-yellow-400' : ''}`}>
       <div className="flex items-center">
         <button
-          onClick={() => toggleComplete(todo._id, !todo.completed)}
+          onClick={handleToggleComplete}
           className="mr-3 text-gray-500 hover:text-green-500 transition-colors"
         >
           {todo.completed ? (
@@ -30,9 +55,21 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           )}
         </button>
         <div>
-          <h3 className={`font-medium ${todo.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-            {todo.title}
-          </h3>
+          <div className="flex items-center">
+            <h3 className={`font-medium ${todo.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+              {todo.title}
+            </h3>
+            {isLocalOnly && (
+              <span className="ml-2 inline-flex items-center" title="This item hasn't synced with the server yet">
+                <Clock className="h-3 w-3 text-yellow-500" />
+              </span>
+            )}
+            {isOffline && !isLocalOnly && (
+              <span className="ml-2 inline-flex items-center" title="Working offline">
+                <CloudOff className="h-3 w-3 text-gray-400" />
+              </span>
+            )}
+          </div>
           <div className="flex items-center mt-1">
             <span className={`text-xs px-2 py-1 rounded-full ${priorityColors[todo.priority]}`}>
               {todo.priority}
@@ -44,7 +81,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
         </div>
       </div>
       <button
-        onClick={() => deleteTodo(todo._id)}
+        onClick={handleDelete}
         className="text-gray-400 hover:text-red-500 transition-colors"
       >
         <Trash className="h-5 w-5" />

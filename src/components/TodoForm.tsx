@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { useTodos } from '../contexts/TodoContext';
+import { useAppDispatch } from '../store/hooks';
+import { addTodo } from '../store/slices/todoSlice';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -9,14 +9,14 @@ import { toast } from '@/components/ui/use-toast';
 const TodoForm: React.FC = () => {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const { addTodo } = useTodos();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
     
     try {
-      await addTodo(title, priority);
+      await dispatch(addTodo({ title, priority })).unwrap();
       setTitle('');
       setPriority('medium');
       toast({
@@ -24,6 +24,11 @@ const TodoForm: React.FC = () => {
         description: "Your todo has been added successfully",
       });
     } catch (error) {
+      toast({
+        title: "Error",
+        description: String(error),
+        variant: "destructive"
+      });
       console.error('Error adding todo:', error);
     }
   };

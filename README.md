@@ -1,3 +1,57 @@
+# Modern Todo App
+
+A modern Todo application built with React, Redux, and Node.js.
+
+## Project Structure
+
+- `/src` - Frontend React application with Redux state management
+- `/server` - Backend Node.js server with Express and MongoDB
+
+## Getting Started
+
+### Backend Setup
+
+1. Navigate to the server directory:
+   ```
+   cd server
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Create a `.env` file in the server directory with:
+   ```
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/todos
+   ```
+
+4. Start the server:
+   ```
+   npm run dev
+   ```
+
+### Frontend Setup
+
+1. From the project root, install dependencies:
+   ```
+   npm install
+   ```
+
+2. Start the development server:
+   ```
+   npm run dev
+   ```
+
+## Features
+
+- Create, read, update, and delete todos
+- Set priority levels for todos
+- Mark todos as completed
+- Responsive design
+- Error handling for database connection issues
+
 # Welcome to your Lovable project
 
 ## Project info
